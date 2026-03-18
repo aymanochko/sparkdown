@@ -1,0 +1,15 @@
+# SparkDown - Markdown Editor Dependencies
+
+# Core
+markdown>=3.5
+Pygments>=2.17
+
+# PDF Export
+weasyprint>=60.0
+
+# Document Export (DOCX, ODT, RTF, EPUB, LaTeX, MediaWiki, reStructuredText)
+pypandoc>=1.13
+
+# Optional: for better markdown parsing
+markdown-it-py>=0.9.0
+mdit-py-plugins>=0.4.0
