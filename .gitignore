@@ -1,0 +1,90 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+dist/
+sparkdown.egg-info/
+**/__pycache__/
+**/*.egg-info/
+build/
+*.egg
+*.whl
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Virtual environments
+venv/
+.env/
+.env.local
+.venv/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Python specific
+*.pyc
+*.pyo
+*.pyd
+*.pyi
+*.pyd
+*.pyw
+
+# Log files
+*.log
+*.log.*
+*.tmp
+*.bak
+
+# Test files
+*.pyc
+*.pyo
+*.pyd
+*.pyi
+*.pyd
+*.pyw
+
+# Coverage files
+.coverage
+.coverage.*
+.htmlcov
+.pytest_cache/
+
+# Jupyter notebooks
+.ipynb_checkpoints/
+
+# SparkDown specific
+sparkdown.db
+sparkdown.db-journal
+
+# Environment files
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.old
+*.orig
+*.rej
+*.sublime

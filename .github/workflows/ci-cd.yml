@@ -1,0 +1,347 @@
+# SparkDown CI/CD Pipeline
+# 
+# This workflow performs:
+# 1. Code quality check (linting) with ruff
+# 2. Unit tests with pytest
+# 3. Build verification
+# 4. Windows executable creation on tag push
+
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [main, develop, "**"]
+  pull_request:
+    branches: [main, develop]
+  release:
+    types: [published]
+  workflow_dispatch:
+
+# Environment variables
+env:
+  PYTHON_VERSION: "3.11"
+  PYTHON_VER: "3.11"
+
+jobs:
+  # ==========================================
+  # Job 1: Code Quality (Linting with Ruff)
+  # ==========================================
+  lint:
+    name: Code Quality Check
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff
+
+      - name: Run Ruff linter
+        run: ruff check . --output-format=github
+
+      - name: Run Ruff formatter check
+        run: ruff format --check . --output-format=github
+
+  # ==========================================
+  # Job 2: Unit Tests with pytest
+  # ==========================================
+  test:
+    name: Unit Tests
+    runs-on: windows-latest
+    needs: lint
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[full]"
+          pip install pytest pytest-cov
+
+      - name: Run pytest
+        run: pytest --cov=src --cov-report=xml --cov-report=html --tb=short
+
+      - name: Upload coverage reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: htmlcov/
+          retention-days: 30
+
+      - name: Upload pytest XML report
+        uses: actions/upload-artifact@v4
+        with:
+          name: pytest-results
+          path: junit.xml
+          retention-days: 30
+
+  # ==========================================
+  # Job 3: Build Verification
+  # ==========================================
+  build:
+    name: Build Verification
+    runs-on: windows-latest
+    needs: test
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+          cache: 'pip'
+
+      - name: Install build dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install build
+          pip install -e ".[full]"
+
+      - name: Build package
+        run: python -m build
+
+      - name: Verify built package
+        run: |
+          pip install dist/*.whl --force-reinstall
+          python -c "import sparkdown; print('Import successful')"
+
+      - name: Upload built artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist/
+          retention-days: 7
+
+  # ==========================================
+  # Job 4: Windows Executable (on tag push)
+  # ==========================================
+  build-exe:
+    name: Build Windows Executable
+    runs-on: windows-latest
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[full]"
+          pip install pyinstaller pillow
+
+      - name: Get version from tag
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/v}" >> $GITHUB_OUTPUT
+
+      - name: Create PyInstaller spec file
+        run: |
+          @"
+          # -*- mode: python ; coding: utf-8 -*-
+          import sys
+          from pathlib import Path
+          
+          block_cipher = None
+          
+          # Get project root
+          root = Path(SPECPATH)
+          
+          # Collect all hidden imports and datas
+          hiddenimports = [
+              'markdown',
+              'Pygments',
+              'Pygments.lexers',
+              'Pygments.formatters',
+              'Pygments.styles',
+              'weasyprint',
+              'pypandoc',
+              'markdown_it',
+              'mdit_py_plugins',
+              'xml.etree.ElementTree',
+              'xml.dom.minidom',
+              'zipfile',
+              'html.parser',
+          ]
+          
+          # Collect data files
+          datas = []
+          # Add any additional data files if needed
+          
+          a = Analysis(
+              ['main.py'],
+              pathex=[str(root)],
+              binaries=[],
+              datas=datas,
+              hiddenimports=hiddenimports,
+              hookspath=[],
+              hooksconfig={},
+              runtime_hooks=[],
+              excludes=[],
+              win_no_prefer_redirects=False,
+              win_private_assemblies=False,
+              block_cipher=block_cipher,
+              noarchive=False,
+          )
+          
+          pyz = PYZ(a.pure, a.zipped_data, block_cipher)
+          
+          exe = EXE(
+              pyz,
+              a.scripts,
+              a.binaries,
+              a.zipfiles,
+              a.datas,
+              [],
+              name='SparkDown-${{ steps.version.outputs.VERSION }}-Windows',
+              debug=False,
+              bootloader_ignore_signals=False,
+              strip=False,
+              upx=True,
+              upx_exclude=[],
+              runtime_tmpdir=None,
+              console=False,
+              disable_windowed_traceback=False,
+              argv_emulation=False,
+              target_arch=None,
+              codesign_identity=None,
+              entitlements_file=None,
+              icon=None,
+              version='version.txt',
+              resource=None,
+          )
+          "@ | Out-File -FilePath "sparkdown.spec" -Encoding utf8
+          
+          # Create version.txt for Windows
+          @"
+          VSVersionInfo(
+            ffi=FixedFileInfo(
+              filevers=(${{ steps.version.outputs.VERSION }}.0, 0),
+              prodvers=(${{ steps.version.outputs.VERSION }}.0, 0),
+              mask=0x3f,
+              flags=0x0,
+              OS=0x40004,
+              fileType=0x1,
+              subtype=0x0,
+              date=(0, 0)
+            ),
+            kids=[
+              StringFileInfo(
+                [
+                  StringTable(
+                    u'040904B0',
+                    [
+                      StringStruct(u'CompanyName', u'SparkDown Team'),
+                      StringStruct(u'FileDescription', u'SparkDown - Markdown Editor'),
+                      StringStruct(u'FileVersion', u'${{ steps.version.outputs.VERSION }}.0'),
+                      StringStruct(u'ProductName', u'SparkDown'),
+                      StringStruct(u'ProductVersion', u'${{ steps.version.outputs.VERSION }}.0'),
+                    ]
+                  )
+                ]
+              ),
+              VarFileInfo([VarStruct(u'Translation', [1033, 1200])])
+            ]
+          )
+          "@ | Out-File -FilePath "version.txt" -Encoding utf8
+
+      - name: Build executable with PyInstaller
+        run: pyinstaller sparkdown.spec --clean --noconfirm
+        continue-on-error: true
+
+      - name: Fallback build if spec fails
+        if: success() == false
+        run: |
+          pyinstaller --name "SparkDown-${{ steps.version.outputs.VERSION }}-Windows" `
+            --onefile `
+            --windowed `
+            --add-data "src;src" `
+            --hidden-import=markdown `
+            --hidden-import=Pygments `
+            --hidden-import=weasyprint `
+            --hidden-import=pypandoc `
+            --hidden-import=markdown_it `
+            --hidden-import=mdit_py_plugins `
+            --collect-all=markdown `
+            --collect-all=Pygments `
+            --collect-all=weasyprint `
+            main.py
+        continue-on-error: true
+
+      - name: Rename executable
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path "dist" -Filter "*.exe" | ForEach-Object {
+            $newName = "SparkDown-${{ steps.version.outputs.VERSION }}-Windows-x64.exe"
+            Rename-Item -Path $_.FullName -NewName $newName
+          }
+
+      - name: Create release archive
+        shell: pwsh
+        run: |
+          $exe = Get-ChildItem -Path "dist" -Filter "*.exe" | Select-Object -First 1
+          if ($exe) {
+            Compress-Archive -Path $exe.FullName -DestinationPath "dist\SparkDown-${{ steps.version.outputs.VERSION }}-Windows-x64.zip"
+          }
+
+      - name: Upload executable as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sparkdown-exe
+          path: |
+            dist/*.exe
+            dist/*.zip
+          retention-days: 90
+
+      - name: Upload Release Asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/*.exe
+            dist/*.zip
+          draft: false
+          prerelease: ${{ contains(github.ref, 'beta') || contains(github.ref, 'alpha') }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # ==========================================
+  # Job 5: Notify on Failure
+  # ==========================================
+  notify-failure:
+    name: Notify Failure
+    runs-on: windows-latest
+    needs: [lint, test, build]
+    if: failure()
+    
+    steps:
+      - name: Create failure summary
+        run: |
+          echo "## GitHub Actions Failure Report" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "The workflow failed. Please check the logs for more details." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Failed jobs:" >> $GITHUB_STEP_SUMMARY
+          ${{ join(needs.*.result, '\n') }} >> $GITHUB_STEP_SUMMARY

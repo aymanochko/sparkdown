@@ -4,8 +4,8 @@ SparkDown - Main Entry Point
 A feature-rich markdown editor with file management and export capabilities
 """
 
-import sys
 import os
+import sys
 
 # Add src directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))

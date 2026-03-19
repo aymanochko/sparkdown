@@ -3,16 +3,15 @@ SparkDown - Markdown Renderer Module
 Handles markdown rendering to HTML and PDF
 """
 
-import markdown
 import os
 import tempfile
-from typing import Optional
-from markdown.extensions import extra, codehilite, tables, toc, fenced_code, nl2br
+
+import markdown
 
 
 class MarkdownRenderer:
     """Renders markdown content to various formats"""
-    
+
     # HTML template with dark theme
     HTML_TEMPLATE = """<!DOCTYPE html>
 <html lang="en">
@@ -32,7 +31,7 @@ class MarkdownRenderer:
             --blockquote-border: #4EC9B0;
             --table-border: #3C3C3C;
         }}
-        
+
         body {{
             font-family: 'Segoe UI', system-ui, sans-serif;
             line-height: 1.6;
@@ -42,25 +41,25 @@ class MarkdownRenderer:
             background-color: var(--bg-color);
             color: var(--text-color);
         }}
-        
+
         h1, h2, h3, h4, h5, h6 {{
             color: var(--heading-color);
             margin-top: 1.5em;
             margin-bottom: 0.5em;
         }}
-        
+
         h1 {{ border-bottom: 2px solid var(--border-color); padding-bottom: 0.3em; }}
         h2 {{ border-bottom: 1px solid var(--border-color); padding-bottom: 0.2em; }}
-        
+
         a {{
             color: var(--link-color);
             text-decoration: none;
         }}
-        
+
         a:hover {{
             text-decoration: underline;
         }}
-        
+
         code {{
             font-family: 'Consolas', 'Courier New', monospace;
             background-color: var(--code-bg);
@@ -68,7 +67,7 @@ class MarkdownRenderer:
             border-radius: 3px;
             color: var(--code-color);
         }}
-        
+
         pre {{
             background-color: var(--code-bg);
             padding: 1em;
@@ -76,63 +75,63 @@ class MarkdownRenderer:
             overflow-x: auto;
             border: 1px solid var(--border-color);
         }}
-        
+
         pre code {{
             padding: 0;
             background: none;
         }}
-        
+
         blockquote {{
             border-left: 4px solid var(--blockquote-border);
             margin: 1em 0;
             padding: 0.5em 1em;
             background-color: rgba(78, 201, 176, 0.1);
         }}
-        
+
         table {{
             border-collapse: collapse;
             width: 100%;
             margin: 1em 0;
         }}
-        
+
         th, td {{
             border: 1px solid var(--table-border);
             padding: 0.5em 1em;
             text-align: left;
         }}
-        
+
         th {{
             background-color: var(--code-bg);
         }}
-        
+
         hr {{
             border: none;
             border-top: 1px solid var(--border-color);
             margin: 2em 0;
         }}
-        
+
         img {{
             max-width: 100%;
             height: auto;
         }}
-        
+
         ul, ol {{
             padding-left: 2em;
         }}
-        
+
         li {{
             margin: 0.3em 0;
         }}
-        
+
         .task-list-item {{
             list-style: none;
             margin-left: -1.5em;
         }}
-        
+
         .task-list-item input {{
             margin-right: 0.5em;
         }}
-        
+
         /* Syntax highlighting colors */
         .highlight .hll {{ background-color: #ffffcc }}
         .highlight .c {{ color: #6A9955; font-style: italic }} /* Comment */
@@ -200,11 +199,11 @@ class MarkdownRenderer:
 {content}
 </body>
 </html>"""
-    
+
     def __init__(self):
         """Initialize the markdown renderer"""
         self._setup_extensions()
-    
+
     def _setup_extensions(self):
         """Setup markdown extensions"""
         self.extensions = [
@@ -221,7 +220,7 @@ class MarkdownRenderer:
             'legacy_attrs',
             'md_in_html'
         ]
-        
+
         self.extension_configs = {
             'codehilite': {
                 'css_class': 'highlight',
@@ -231,45 +230,45 @@ class MarkdownRenderer:
                 'permalink': True
             }
         }
-    
+
     def render_to_html(self, markdown_content: str, title: str = "SparkDown Document") -> str:
         """Convert markdown to HTML"""
         md = markdown.Markdown(
             extensions=self.extensions,
             extension_configs=self.extension_configs
         )
-        
+
         html_content = md.convert(markdown_content)
-        
+
         # Wrap in full HTML document
         full_html = self.HTML_TEMPLATE.format(
             title=title,
             content=html_content
         )
-        
+
         return full_html
-    
+
     def render_to_html_fragment(self, markdown_content: str) -> str:
         """Convert markdown to HTML fragment (without full document)"""
         md = markdown.Markdown(
             extensions=self.extensions,
             extension_configs=self.extension_configs
         )
-        
+
         return md.convert(markdown_content)
-    
+
     def render_to_pdf(self, markdown_content: str, output_path: str, title: str = "SparkDown Document") -> bool:
         """Convert markdown to PDF using weasyprint"""
         try:
             from weasyprint import HTML
-            
+
             html_content = self.render_to_html(markdown_content, title)
-            
+
             # Write to temporary HTML file
             with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False, encoding='utf-8') as tmp:
                 tmp.write(html_content)
                 tmp_path = tmp.name
-            
+
             try:
                 # Convert HTML to PDF
                 HTML(filename=tmp_path).write_pdf(output_path)
@@ -278,35 +277,35 @@ class MarkdownRenderer:
                 # Cleanup temp file
                 if os.path.exists(tmp_path):
                     os.unlink(tmp_path)
-                    
+
         except ImportError:
-            raise ImportError("weasyprint is required for PDF export. Install with: pip install weasyprint")
+            raise ImportError("weasyprint is required for PDF export. Install with: pip install weasyprint") from None
         except Exception as e:
-            raise RuntimeError(f"PDF conversion failed: {e}")
-    
+            raise RuntimeError(f"PDF conversion failed: {e}") from e
+
     def get_toc(self, markdown_content: str) -> list:
         """Extract table of contents from markdown"""
         md = markdown.Markdown(extensions=['toc'])
         md.convert(markdown_content)
-        
+
         if hasattr(md, 'Meta') and 'toc' in md.Meta:
             return md.Meta.get('toc', [])
         return []
-    
+
     def get_word_count(self, markdown_content: str) -> int:
         """Count words in markdown content"""
         # Remove code blocks
         import re
         text = re.sub(r'```[\s\S]*?```', '', markdown_content)
         text = re.sub(r'`[^`]+`', '', text)
-        
+
         # Remove markdown syntax
         text = re.sub(r'[#*\-\[\](){}|]', '', text)
-        
+
         # Count words
         words = text.split()
         return len(words)
-    
+
     def get_line_count(self, markdown_content: str) -> int:
         """Count lines in markdown content"""
         return len(markdown_content.split('\n'))
