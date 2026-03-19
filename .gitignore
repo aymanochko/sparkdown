@@ -89,3 +89,4 @@ sparkdown.db-journal
 *.rej
 *.sublime
 junit.xml
+coverage.xml
