@@ -120,7 +120,7 @@ jobs:
 
       - name: Verify built package
         run: |
-          pip install dist/*.whl --force-reinstall
+          python -c "import glob; wheels = glob.glob('dist/*.whl'); print('Found wheels:', wheels); import subprocess; subprocess.run(['pip', 'install', wheels[0], '--force-reinstall'])"
           python -c "import sparkdown; print('Import successful')"
 
       - name: Upload built artifacts
