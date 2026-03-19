@@ -62,7 +62,7 @@ class FileManager:
         if not file_path.exists():
             raise FileNotFoundError(f"File not found: {filename}")
 
-        with open(file_path, encoding='utf-8') as f:
+        with open(file_path, encoding="utf-8") as f:
             return f.read()
 
     def write_file(self, filename: str, content: str) -> str:
@@ -70,11 +70,11 @@ class FileManager:
         file_path = self.get_file_path(filename)
 
         # Ensure .md extension
-        if not filename.endswith('.md'):
-            filename = filename + '.md'
+        if not filename.endswith(".md"):
+            filename = filename + ".md"
             file_path = self.base_folder / filename
 
-        with open(file_path, 'w', encoding='utf-8') as f:
+        with open(file_path, "w", encoding="utf-8") as f:
             f.write(content)
 
         return filename
@@ -115,11 +115,11 @@ class FileManager:
 
         stat = file_path.stat()
         return {
-            'name': filename,
-            'path': str(file_path),
-            'size': stat.st_size,
-            'modified': datetime.fromtimestamp(stat.st_mtime),
-            'created': datetime.fromtimestamp(stat.st_ctime)
+            "name": filename,
+            "path": str(file_path),
+            "size": stat.st_size,
+            "modified": datetime.fromtimestamp(stat.st_mtime),
+            "created": datetime.fromtimestamp(stat.st_ctime),
         }
 
     def rename_file(self, old_name: str, new_name: str) -> bool:
@@ -131,8 +131,8 @@ class FileManager:
             return False
 
         # Ensure .md extension
-        if not new_name.endswith('.md'):
-            new_name = new_name + '.md'
+        if not new_name.endswith(".md"):
+            new_name = new_name + ".md"
             new_path = self.base_folder / new_name
 
         if new_path.exists():

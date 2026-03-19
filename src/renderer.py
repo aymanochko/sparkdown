@@ -207,57 +207,45 @@ class MarkdownRenderer:
     def _setup_extensions(self):
         """Setup markdown extensions"""
         self.extensions = [
-            'extra',
-            'codehilite',
-            'tables',
-            'toc',
-            'fenced_code',
-            'nl2br',
-            'sane_lists',
-            'def_list',
-            'abbr',
-            'attr_list',
-            'legacy_attrs',
-            'md_in_html'
+            "extra",
+            "codehilite",
+            "tables",
+            "toc",
+            "fenced_code",
+            "nl2br",
+            "sane_lists",
+            "def_list",
+            "abbr",
+            "attr_list",
+            "legacy_attrs",
+            "md_in_html",
         ]
 
         self.extension_configs = {
-            'codehilite': {
-                'css_class': 'highlight',
-                'linenums': False
-            },
-            'toc': {
-                'permalink': True
-            }
+            "codehilite": {"css_class": "highlight", "linenums": False},
+            "toc": {"permalink": True},
         }
 
     def render_to_html(self, markdown_content: str, title: str = "SparkDown Document") -> str:
         """Convert markdown to HTML"""
-        md = markdown.Markdown(
-            extensions=self.extensions,
-            extension_configs=self.extension_configs
-        )
+        md = markdown.Markdown(extensions=self.extensions, extension_configs=self.extension_configs)
 
         html_content = md.convert(markdown_content)
 
         # Wrap in full HTML document
-        full_html = self.HTML_TEMPLATE.format(
-            title=title,
-            content=html_content
-        )
+        full_html = self.HTML_TEMPLATE.format(title=title, content=html_content)
 
         return full_html
 
     def render_to_html_fragment(self, markdown_content: str) -> str:
         """Convert markdown to HTML fragment (without full document)"""
-        md = markdown.Markdown(
-            extensions=self.extensions,
-            extension_configs=self.extension_configs
-        )
+        md = markdown.Markdown(extensions=self.extensions, extension_configs=self.extension_configs)
 
         return md.convert(markdown_content)
 
-    def render_to_pdf(self, markdown_content: str, output_path: str, title: str = "SparkDown Document") -> bool:
+    def render_to_pdf(
+        self, markdown_content: str, output_path: str, title: str = "SparkDown Document"
+    ) -> bool:
         """Convert markdown to PDF using weasyprint"""
         try:
             from weasyprint import HTML
@@ -265,7 +253,9 @@ class MarkdownRenderer:
             html_content = self.render_to_html(markdown_content, title)
 
             # Write to temporary HTML file
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.html', delete=False, encoding='utf-8') as tmp:
+            with tempfile.NamedTemporaryFile(
+                mode="w", suffix=".html", delete=False, encoding="utf-8"
+            ) as tmp:
                 tmp.write(html_content)
                 tmp_path = tmp.name
 
@@ -279,28 +269,31 @@ class MarkdownRenderer:
                     os.unlink(tmp_path)
 
         except ImportError:
-            raise ImportError("weasyprint is required for PDF export. Install with: pip install weasyprint") from None
+            raise ImportError(
+                "weasyprint is required for PDF export. Install with: pip install weasyprint"
+            ) from None
         except Exception as e:
             raise RuntimeError(f"PDF conversion failed: {e}") from e
 
     def get_toc(self, markdown_content: str) -> list:
         """Extract table of contents from markdown"""
-        md = markdown.Markdown(extensions=['toc'])
+        md = markdown.Markdown(extensions=["toc"])
         md.convert(markdown_content)
 
-        if hasattr(md, 'Meta') and 'toc' in md.Meta:
-            return md.Meta.get('toc', [])
+        if hasattr(md, "Meta") and "toc" in md.Meta:
+            return md.Meta.get("toc", [])
         return []
 
     def get_word_count(self, markdown_content: str) -> int:
         """Count words in markdown content"""
         # Remove code blocks
         import re
-        text = re.sub(r'```[\s\S]*?```', '', markdown_content)
-        text = re.sub(r'`[^`]+`', '', text)
+
+        text = re.sub(r"```[\s\S]*?```", "", markdown_content)
+        text = re.sub(r"`[^`]+`", "", text)
 
         # Remove markdown syntax
-        text = re.sub(r'[#*\-\[\](){}|]', '', text)
+        text = re.sub(r"[#*\-\[\](){}|]", "", text)
 
         # Count words
         words = text.split()
@@ -308,4 +301,4 @@ class MarkdownRenderer:
 
     def get_line_count(self, markdown_content: str) -> int:
         """Count lines in markdown content"""
-        return len(markdown_content.split('\n'))
+        return len(markdown_content.split("\n"))

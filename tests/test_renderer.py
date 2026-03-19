@@ -8,7 +8,7 @@ import unittest
 
 # Add parent directory and src to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
 
 from renderer import MarkdownRenderer
 
@@ -83,7 +83,7 @@ class TestMarkdownRenderer(unittest.TestCase):
         content = "```python\nprint('hello')\n```"
         result = self.renderer.render_to_html(content)
         self.assertIn("<code", result)
-        self.assertIn("class=\"highlight", result)
+        self.assertIn('class="highlight', result)
 
     def test_render_inline_code(self):
         """Test rendering of inline code"""
@@ -240,7 +240,7 @@ class TestMarkdownRendererExtensions(unittest.TestCase):
         """Test fenced code blocks"""
         content = "```javascript\nconst x = 1;\n```"
         result = self.renderer.render_to_html(content)
-        self.assertIn("class=\"highlight", result)
+        self.assertIn('class="highlight', result)
 
     def test_tables_extension(self):
         """Test tables"""
@@ -265,5 +265,5 @@ class TestMarkdownRendererExtensions(unittest.TestCase):
         self.assertTrue("<del>" in result or "~~deleted~~" in result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

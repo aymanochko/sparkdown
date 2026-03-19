@@ -12,7 +12,7 @@ from unittest.mock import Mock, patch
 
 # Add parent directory and src to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
 
 
 class TestSparkDownApp(unittest.TestCase):
@@ -30,14 +30,14 @@ class TestSparkDownApp(unittest.TestCase):
         self.mock_root.protocol = Mock()
 
         # Mock the Tkinter widgets that are created in __init__
-        with patch('tkinter.ttk.Style'):
-            with patch('tkinter.ttk.PanedWindow'):
-                with patch('tkinter.Menu'):
-                    with patch('tkinter.Frame'):
-                        with patch('tkinter.Text'):
-                            with patch('tkinter.Scrollbar'):
-                                with patch('tkinter.Label'):
-                                    with patch('tkinter.Button'):
+        with patch("tkinter.ttk.Style"):
+            with patch("tkinter.ttk.PanedWindow"):
+                with patch("tkinter.Menu"):
+                    with patch("tkinter.Frame"):
+                        with patch("tkinter.Text"):
+                            with patch("tkinter.Scrollbar"):
+                                with patch("tkinter.Label"):
+                                    with patch("tkinter.Button"):
                                         # Import after mocking
                                         from exporter import Exporter
                                         from file_manager import FileManager
@@ -62,7 +62,7 @@ class TestSparkDownApp(unittest.TestCase):
 
     def test_default_folder_path(self):
         """Test that default folder path is set"""
-        self.assertIn('SparkDown', self.app.file_manager.folder_path)
+        self.assertIn("SparkDown", self.app.file_manager.folder_path)
 
     def test_renderer_initialized(self):
         """Test that renderer is initialized"""
@@ -90,15 +90,15 @@ class TestSparkDownAppMethods(unittest.TestCase):
 
         # Patch all tkinter components
         self.patches = [
-            patch('tkinter.ttk.Style'),
-            patch('tkinter.ttk.PanedWindow'),
-            patch('tkinter.Menu'),
-            patch('tkinter.Frame'),
-            patch('tkinter.Text'),
-            patch('tkinter.Scrollbar'),
-            patch('tkinter.Label'),
-            patch('tkinter.Button'),
-            patch('tkinter.scrolledtext.ScrolledText'),
+            patch("tkinter.ttk.Style"),
+            patch("tkinter.ttk.PanedWindow"),
+            patch("tkinter.Menu"),
+            patch("tkinter.Frame"),
+            patch("tkinter.Text"),
+            patch("tkinter.Scrollbar"),
+            patch("tkinter.Label"),
+            patch("tkinter.Button"),
+            patch("tkinter.scrolledtext.ScrolledText"),
         ]
 
         for p in self.patches:
@@ -106,6 +106,7 @@ class TestSparkDownAppMethods(unittest.TestCase):
 
         # Create app with mocked components
         from sparkdown import SparkDownApp
+
         self.app = SparkDownApp.__new__(SparkDownApp)
         self.app.root = self.mock_root
         self.app.temp_dir = self.temp_dir
@@ -170,20 +171,20 @@ class TestSparkDownAppMethods(unittest.TestCase):
 
         # Mock colors
         self.app.colors = {
-            'bg_primary': '#1E1E1E',
-            'bg_secondary': '#252526',
-            'bg_tertiary': '#2D2D2D',
-            'accent': '#007ACC',
-            'success': '#4EC9B0',
-            'warning': '#DCDCAA',
-            'error': '#F14C4C',
-            'text_primary': '#D4D4D4',
-            'text_secondary': '#808080',
-            'border': '#3C3C3C',
-            'hover': '#3C3C3C',
-            'heading_color': '#569CD6',
-            'link_color': '#4EC9B0',
-            'code_color': '#CE9178'
+            "bg_primary": "#1E1E1E",
+            "bg_secondary": "#252526",
+            "bg_tertiary": "#2D2D2D",
+            "accent": "#007ACC",
+            "success": "#4EC9B0",
+            "warning": "#DCDCAA",
+            "error": "#F14C4C",
+            "text_primary": "#D4D4D4",
+            "text_secondary": "#808080",
+            "border": "#3C3C3C",
+            "hover": "#3C3C3C",
+            "heading_color": "#569CD6",
+            "link_color": "#4EC9B0",
+            "code_color": "#CE9178",
         }
 
     def tearDown(self):
@@ -273,8 +274,8 @@ class TestSparkDownAppMethods(unittest.TestCase):
     def test_refresh_file_list(self):
         """Test refreshing the file list"""
         # Create test file
-        test_file = os.path.join(self.temp_dir, 'test.md')
-        with open(test_file, 'w') as f:
+        test_file = os.path.join(self.temp_dir, "test.md")
+        with open(test_file, "w") as f:
             f.write("# Test")
 
         # Mock file_listbox
@@ -284,6 +285,7 @@ class TestSparkDownAppMethods(unittest.TestCase):
 
         # Create real file manager
         from file_manager import FileManager
+
         self.app.file_manager = FileManager(self.temp_dir)
 
         self.app.refresh_file_list()
@@ -305,20 +307,21 @@ class TestSparkDownPreview(unittest.TestCase):
 
         # Patch tkinter
         self.patches = [
-            patch('tkinter.ttk.Style'),
-            patch('tkinter.ttk.PanedWindow'),
-            patch('tkinter.Menu'),
-            patch('tkinter.Frame'),
-            patch('tkinter.Text'),
-            patch('tkinter.Scrollbar'),
-            patch('tkinter.Label'),
-            patch('tkinter.Button'),
+            patch("tkinter.ttk.Style"),
+            patch("tkinter.ttk.PanedWindow"),
+            patch("tkinter.Menu"),
+            patch("tkinter.Frame"),
+            patch("tkinter.Text"),
+            patch("tkinter.Scrollbar"),
+            patch("tkinter.Label"),
+            patch("tkinter.Button"),
         ]
 
         for p in self.patches:
             p.start()
 
         from sparkdown import SparkDownApp
+
         self.app = SparkDownApp.__new__(SparkDownApp)
 
         # Setup mocks
@@ -356,16 +359,16 @@ class TestSparkDownPreview(unittest.TestCase):
         self.app.status_mode.config = Mock()
 
         self.app.colors = {
-            'bg_primary': '#1E1E1E',
-            'bg_secondary': '#252526',
-            'bg_tertiary': '#2D2D2D',
-            'accent': '#007ACC',
-            'success': '#4EC9B0',
-            'heading_color': '#569CD6',
-            'link_color': '#4EC9B0',
-            'code_color': '#CE9178',
-            'text_secondary': '#808080',
-            'border': '#3C3C3C'
+            "bg_primary": "#1E1E1E",
+            "bg_secondary": "#252526",
+            "bg_tertiary": "#2D2D2D",
+            "accent": "#007ACC",
+            "success": "#4EC9B0",
+            "heading_color": "#569CD6",
+            "link_color": "#4EC9B0",
+            "code_color": "#CE9178",
+            "text_secondary": "#808080",
+            "border": "#3C3C3C",
         }
 
         self.app.is_edit_mode = True
@@ -423,24 +426,26 @@ class TestSparkDownFileOperations(unittest.TestCase):
 
         # Patch tkinter
         self.patches = [
-            patch('tkinter.ttk.Style'),
-            patch('tkinter.ttk.PanedWindow'),
-            patch('tkinter.Menu'),
-            patch('tkinter.Frame'),
-            patch('tkinter.Text'),
-            patch('tkinter.Scrollbar'),
-            patch('tkinter.Label'),
-            patch('tkinter.Button'),
+            patch("tkinter.ttk.Style"),
+            patch("tkinter.ttk.PanedWindow"),
+            patch("tkinter.Menu"),
+            patch("tkinter.Frame"),
+            patch("tkinter.Text"),
+            patch("tkinter.Scrollbar"),
+            patch("tkinter.Label"),
+            patch("tkinter.Button"),
         ]
 
         for p in self.patches:
             p.start()
 
         from sparkdown import SparkDownApp
+
         self.app = SparkDownApp.__new__(SparkDownApp)
 
         # Setup file manager with temp directory
         from file_manager import FileManager
+
         self.app.file_manager = FileManager(self.temp_dir)
 
         # Setup mocks
@@ -479,6 +484,7 @@ class TestSparkDownFileOperations(unittest.TestCase):
 
         # Setup renderer mock
         from renderer import MarkdownRenderer
+
         self.app.renderer = MarkdownRenderer()
 
         self.app.editor = self.mock_editor
@@ -493,7 +499,7 @@ class TestSparkDownFileOperations(unittest.TestCase):
         self.app.status_words = self.mock_status_words
         self.app.current_file = None
         self.app.has_unsaved_changes = False
-        self.app.colors = {'success': '#4EC9B0'}
+        self.app.colors = {"success": "#4EC9B0"}
 
     def tearDown(self):
         """Clean up test fixtures"""
@@ -519,13 +525,13 @@ class TestSparkDownFileOperations(unittest.TestCase):
         # Mock the editor to return content
         self.mock_editor.get = Mock(return_value="# Test Content")
 
-        filename = self.app.file_manager.write_file('test.md', '# Test Content')
+        filename = self.app.file_manager.write_file("test.md", "# Test Content")
 
-        self.assertEqual(filename, 'test.md')
+        self.assertEqual(filename, "test.md")
 
-        content = self.app.file_manager.read_file('test.md')
-        self.assertEqual(content, '# Test Content')
+        content = self.app.file_manager.read_file("test.md")
+        self.assertEqual(content, "# Test Content")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()

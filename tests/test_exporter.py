@@ -10,7 +10,7 @@ import unittest
 
 # Add parent directory and src to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'src'))
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "src"))
 
 from exporter import EXPORT_FORMATS, Exporter
 from renderer import MarkdownRenderer
@@ -29,6 +29,7 @@ class TestExporter(unittest.TestCase):
     def tearDown(self):
         """Clean up test fixtures"""
         import shutil
+
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
 
@@ -47,20 +48,20 @@ class TestExporter(unittest.TestCase):
         format_names = [fmt[1] for fmt in EXPORT_FORMATS]
 
         # Check for some expected formats
-        expected = ['html', 'pdf', 'docx', 'txt', 'json']
+        expected = ["html", "pdf", "docx", "txt", "json"]
         for fmt in expected:
             self.assertIn(fmt, format_names)
 
     def test_export_to_html(self):
         """Test exporting to HTML format"""
-        output_path = os.path.join(self.temp_dir, 'test.html')
-        result = self.exporter.export(self.test_content, output_path, 'html')
+        output_path = os.path.join(self.temp_dir, "test.html")
+        result = self.exporter.export(self.test_content, output_path, "html")
 
         self.assertTrue(result)
         self.assertTrue(os.path.exists(output_path))
 
         # Check content
-        with open(output_path, encoding='utf-8') as f:
+        with open(output_path, encoding="utf-8") as f:
             content = f.read()
         self.assertIn("<html", content)
         # The markdown is rendered to HTML, so we check for h1 tag
@@ -68,28 +69,28 @@ class TestExporter(unittest.TestCase):
 
     def test_export_to_txt(self):
         """Test exporting to plain text format"""
-        output_path = os.path.join(self.temp_dir, 'test.txt')
-        result = self.exporter.export(self.test_content, output_path, 'txt')
+        output_path = os.path.join(self.temp_dir, "test.txt")
+        result = self.exporter.export(self.test_content, output_path, "txt")
 
         self.assertTrue(result)
         self.assertTrue(os.path.exists(output_path))
 
         # Check content
-        with open(output_path, encoding='utf-8') as f:
+        with open(output_path, encoding="utf-8") as f:
             content = f.read()
         self.assertIn("Test Document", content)
         self.assertIn("test", content)
 
     def test_export_to_json(self):
         """Test exporting to JSON format"""
-        output_path = os.path.join(self.temp_dir, 'test.json')
-        result = self.exporter.export(self.test_content, output_path, 'json')
+        output_path = os.path.join(self.temp_dir, "test.json")
+        result = self.exporter.export(self.test_content, output_path, "json")
 
         self.assertTrue(result)
         self.assertTrue(os.path.exists(output_path))
 
         # Check content
-        with open(output_path, encoding='utf-8') as f:
+        with open(output_path, encoding="utf-8") as f:
             data = json.load(f)
 
         self.assertIsInstance(data, dict)
@@ -97,29 +98,29 @@ class TestExporter(unittest.TestCase):
 
     def test_export_unsupported_format(self):
         """Test exporting to unsupported format raises ValueError"""
-        output_path = os.path.join(self.temp_dir, 'test.xyz')
+        output_path = os.path.join(self.temp_dir, "test.xyz")
 
         with self.assertRaises(ValueError) as context:
-            self.exporter.export(self.test_content, output_path, 'xyz')
+            self.exporter.export(self.test_content, output_path, "xyz")
 
         self.assertIn("Unsupported export format", str(context.exception))
 
     def test_ensure_extension(self):
         """Test that _ensure_extension adds extension if missing"""
-        result = self.exporter._ensure_extension('test', '.html')
-        self.assertEqual(result, 'test.html')
+        result = self.exporter._ensure_extension("test", ".html")
+        self.assertEqual(result, "test.html")
 
     def test_ensure_extension_already_has_extension(self):
         """Test that _ensure_extension keeps existing extension"""
-        result = self.exporter._ensure_extension('test.html', '.html')
-        self.assertEqual(result, 'test.html')
+        result = self.exporter._ensure_extension("test.html", ".html")
+        self.assertEqual(result, "test.html")
 
     def test_export_case_insensitive(self):
         """Test that export is case insensitive"""
-        output_path = os.path.join(self.temp_dir, 'test.html')
+        output_path = os.path.join(self.temp_dir, "test.html")
 
         # Test with uppercase
-        result = self.exporter.export(self.test_content, output_path, 'HTML')
+        result = self.exporter.export(self.test_content, output_path, "HTML")
         self.assertTrue(result)
 
 
@@ -136,42 +137,43 @@ class TestExporterFormats(unittest.TestCase):
     def tearDown(self):
         """Clean up test fixtures"""
         import shutil
+
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
 
     def test_export_to_xml(self):
         """Test exporting to XML format"""
-        output_path = os.path.join(self.temp_dir, 'test.xml')
-        result = self.exporter.export(self.test_content, output_path, 'xml')
+        output_path = os.path.join(self.temp_dir, "test.xml")
+        result = self.exporter.export(self.test_content, output_path, "xml")
 
         self.assertTrue(result)
         self.assertTrue(os.path.exists(output_path))
 
-        with open(output_path, encoding='utf-8') as f:
+        with open(output_path, encoding="utf-8") as f:
             content = f.read()
-        self.assertIn('<?xml', content)
+        self.assertIn("<?xml", content)
 
     def test_export_to_yaml(self):
         """Test exporting to YAML format"""
-        output_path = os.path.join(self.temp_dir, 'test.yaml')
-        result = self.exporter.export(self.test_content, output_path, 'yaml')
+        output_path = os.path.join(self.temp_dir, "test.yaml")
+        result = self.exporter.export(self.test_content, output_path, "yaml")
 
         self.assertTrue(result)
         self.assertTrue(os.path.exists(output_path))
 
     def test_export_to_csv(self):
         """Test exporting to CSV format"""
-        output_path = os.path.join(self.temp_dir, 'test.csv')
-        result = self.exporter.export(self.test_content, output_path, 'csv')
+        output_path = os.path.join(self.temp_dir, "test.csv")
+        result = self.exporter.export(self.test_content, output_path, "csv")
 
         self.assertTrue(result)
         self.assertTrue(os.path.exists(output_path))
 
     def test_export_to_latex(self):
         """Test exporting to LaTeX format - requires pandoc"""
-        output_path = os.path.join(self.temp_dir, 'test.tex')
+        output_path = os.path.join(self.temp_dir, "test.tex")
         try:
-            result = self.exporter.export(self.test_content, output_path, 'latex')
+            result = self.exporter.export(self.test_content, output_path, "latex")
             self.assertTrue(result)
             self.assertTrue(os.path.exists(output_path))
         except ImportError as e:
@@ -179,9 +181,9 @@ class TestExporterFormats(unittest.TestCase):
 
     def test_export_to_mediawiki(self):
         """Test exporting to MediaWiki format - requires pandoc"""
-        output_path = os.path.join(self.temp_dir, 'test.wiki')
+        output_path = os.path.join(self.temp_dir, "test.wiki")
         try:
-            result = self.exporter.export(self.test_content, output_path, 'mediawiki')
+            result = self.exporter.export(self.test_content, output_path, "mediawiki")
             self.assertTrue(result)
             self.assertTrue(os.path.exists(output_path))
         except ImportError as e:
@@ -189,9 +191,9 @@ class TestExporterFormats(unittest.TestCase):
 
     def test_export_to_rst(self):
         """Test exporting to reStructuredText format - requires pandoc"""
-        output_path = os.path.join(self.temp_dir, 'test.rst')
+        output_path = os.path.join(self.temp_dir, "test.rst")
         try:
-            result = self.exporter.export(self.test_content, output_path, 'rst')
+            result = self.exporter.export(self.test_content, output_path, "rst")
             self.assertTrue(result)
             self.assertTrue(os.path.exists(output_path))
         except ImportError as e:
@@ -210,16 +212,17 @@ class TestExporterIntegration(unittest.TestCase):
     def tearDown(self):
         """Clean up test fixtures"""
         import shutil
+
         if os.path.exists(self.temp_dir):
             shutil.rmtree(self.temp_dir)
 
     def test_export_multiple_formats(self):
         """Test exporting to multiple formats"""
         content = "# Test Document\n\nSome content here."
-        formats = ['html', 'txt', 'json', 'xml']
+        formats = ["html", "txt", "json", "xml"]
 
         for fmt in formats:
-            output_path = os.path.join(self.temp_dir, f'test.{fmt}')
+            output_path = os.path.join(self.temp_dir, f"test.{fmt}")
             result = self.exporter.export(content, output_path, fmt)
             self.assertTrue(result, f"Failed to export to {fmt}")
             self.assertTrue(os.path.exists(output_path))
@@ -243,12 +246,12 @@ class TestExporterIntegration(unittest.TestCase):
 x = 1
 ```
 """
-        output_path = os.path.join(self.temp_dir, 'complex.html')
-        result = self.exporter.export(content, output_path, 'html')
+        output_path = os.path.join(self.temp_dir, "complex.html")
+        result = self.exporter.export(content, output_path, "html")
 
         self.assertTrue(result)
 
-        with open(output_path, encoding='utf-8') as f:
+        with open(output_path, encoding="utf-8") as f:
             html_content = f.read()
 
         # Verify some elements are present
@@ -257,5 +260,5 @@ x = 1
         self.assertIn("<table>", html_content)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     unittest.main()
