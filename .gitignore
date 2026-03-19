@@ -88,3 +88,4 @@ sparkdown.db-journal
 *.orig
 *.rej
 *.sublime
+junit.xml

@@ -13,3 +13,4 @@ pypandoc>=1.13
 # Optional: for better markdown parsing
 markdown-it-py>=0.9.0
 mdit-py-plugins>=0.4.0
+pyyaml>=6.0.1
