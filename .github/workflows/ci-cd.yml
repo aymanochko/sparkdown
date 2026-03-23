@@ -121,7 +121,7 @@ jobs:
       - name: Verify built package
         run: |
           python -c "import glob; wheels = glob.glob('dist/*.whl'); print('Found wheels:', wheels); import subprocess; subprocess.run(['pip', 'install', wheels[0], '--force-reinstall'])"
-          python -c "import src.sparkdown; print('Import successful')"
+          cd src && python -c "import sparkdown; print('Import successful')"
 
       - name: Upload built artifacts
         uses: actions/upload-artifact@v4
