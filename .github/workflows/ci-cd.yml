@@ -208,7 +208,7 @@ jobs:
               noarchive=False,
           )
           
-          pyz = PYZ(a.pure, a.zipped_data, block_cipher)
+          pyz = PYZ(a.pure, a.zipped_data if a.zipped_data is not None else [])
           
           exe = EXE(
               pyz,
