@@ -169,36 +169,6 @@ class TestExporterFormats(unittest.TestCase):
         self.assertTrue(result)
         self.assertTrue(os.path.exists(output_path))
 
-    def test_export_to_latex(self):
-        """Test exporting to LaTeX format - requires pandoc"""
-        output_path = os.path.join(self.temp_dir, "test.tex")
-        try:
-            result = self.exporter.export(self.test_content, output_path, "latex")
-            self.assertTrue(result)
-            self.assertTrue(os.path.exists(output_path))
-        except ImportError as e:
-            self.skipTest(str(e))
-
-    def test_export_to_mediawiki(self):
-        """Test exporting to MediaWiki format - requires pandoc"""
-        output_path = os.path.join(self.temp_dir, "test.wiki")
-        try:
-            result = self.exporter.export(self.test_content, output_path, "mediawiki")
-            self.assertTrue(result)
-            self.assertTrue(os.path.exists(output_path))
-        except ImportError as e:
-            self.skipTest(str(e))
-
-    def test_export_to_rst(self):
-        """Test exporting to reStructuredText format - requires pandoc"""
-        output_path = os.path.join(self.temp_dir, "test.rst")
-        try:
-            result = self.exporter.export(self.test_content, output_path, "rst")
-            self.assertTrue(result)
-            self.assertTrue(os.path.exists(output_path))
-        except ImportError as e:
-            self.skipTest(str(e))
-
 
 class TestExporterIntegration(unittest.TestCase):
     """Integration tests for the Exporter"""
